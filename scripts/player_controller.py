@@ -23,22 +23,35 @@ class PlayerController(bge.types.KX_PythonComponent):
 
         if dt > 0.1:
             dt = 0.01666
-            
+  
         keyboard_inputs = bge.logic.keyboard.inputs
+        joysticks = bge.logic.joysticks
 
         move_x = 0.0
         move_y = 0.0
         
+        if joysticks:            
+            deadzone = 0.1e-4
+            joy = joysticks[0]
+            delta_x = joy.axisValues[0] / 32767.0
+            delta_y = -joy.axisValues[1] / 32767.0
+            if abs(delta_x) <= deadzone:
+                delta_x = 0.0
+            if abs(delta_y) <= deadzone:
+                delta_y = 0.0
+            
         if keyboard_inputs[bge.events.WKEY].status[-1]:
-            move_y += 1.0
+            delta_y += 1.0
         if keyboard_inputs[bge.events.SKEY].status[-1]:
-            move_y -= 1.0
+            delta_y -= 1.0
         if keyboard_inputs[bge.events.AKEY].status[-1]:
-            move_x -= 1.0
+            delta_x -= 1.0
         if keyboard_inputs[bge.events.DKEY].status[-1]:
-            move_x += 1.0
+            delta_x += 1.0
 
-        if move_x != 0.0 or move_y != 0.0:
+        if delta_x != 0.0 or delta_y != 0.0:
+            move_x += delta_x
+            move_y += delta_y
             length = math.sqrt(move_x**2 + move_y**2)
             move_x /= length
             move_y /= length
